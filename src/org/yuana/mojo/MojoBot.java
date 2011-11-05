@@ -30,6 +30,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
+import org.yuana.ircbot.Channel;
 import org.yuana.ircbot.Colors;
 import org.yuana.ircbot.Queue;
 import org.yuana.mojo.javascript.JSChannel;
@@ -83,7 +84,7 @@ public class MojoBot extends AbstractBot {
             Logger.getLogger(MojoBot.class.getName()).log(Level.SEVERE, null, ex);
         }
         //this.setName("MojoTest");
-        this.setVersion("Mojo by " + getNickFromMask(owner));
+        this.setVersion("Mojo by IJzerenRita");
         this.setLogin("Mojo");
 
 
@@ -384,7 +385,11 @@ public class MojoBot extends AbstractBot {
         try {
             System.out.println("Creating a new channel object");
             Context.enter();
-            JSChannel scope = JSChannel.getJSInstance(umbrella.createJSBotInstance(this), this, getChannel(channel));
+            Channel channelObj = getChannel(channel);
+            if(channelObj == null) {
+                throw new RuntimeException("Channel '" + channel + "' does not exist");
+            }
+            JSChannel scope = JSChannel.getJSInstance(umbrella.createJSBotInstance(this), this, channelObj);
             scope.put("channel", scope, scope);
             scope.put("bot", scope, umbrella.createJSBotInstance(this));
             scope.setParentScope(umbrella.createJSBotInstance(this));
@@ -716,7 +721,7 @@ public class MojoBot extends AbstractBot {
     }
     
     private static String getNickFromMask(String mask) {
-        return mask.substring(0, mask.indexOf('!'));
+        return mask.substring(0, Math.max(0, mask.indexOf('!')));
     }
     
     private boolean ownerCheck(String nick, String login, String hostname) {

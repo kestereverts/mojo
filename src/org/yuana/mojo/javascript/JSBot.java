@@ -9,6 +9,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.mozilla.javascript.Context;
+import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.ScriptableObject;
 import org.mozilla.javascript.Undefined;
 import org.yuana.mojo.CommandContext;
@@ -33,6 +34,19 @@ public class JSBot extends ScriptableObject {
             ctcp.defineProperty("finger", this, JSBot.class.getMethod("__jsGet_ctcp_finger", ScriptableObject.class), JSBot.class.getDeclaredMethod("__jsSet_ctcp_finger", ScriptableObject.class, String.class), 0);
             ctcp.defineProperty("version", this, JSBot.class.getMethod("__jsGet_ctcp_version", ScriptableObject.class), JSBot.class.getDeclaredMethod("__jsSet_ctcp_version", ScriptableObject.class, String.class), 0);
             ScriptableObject.defineProperty(this, "ctcp", ctcp, 0);
+            
+            JSChannelList channelList = new JSChannelList(bot);
+            channelList.sealObject();
+            ScriptableObject.defineProperty(bot.getUmbrella().getStandardScope(), "channels", channelList, ScriptableObject.PERMANENT | ScriptableObject.READONLY);
+
+            Scriptable channelListFakeConstructor = cx.newObject(bot.getUmbrella().getStandardScope());
+            ScriptableObject.defineProperty(bot.getUmbrella().getStandardScope(), channelList.getClassName(), channelListFakeConstructor, 0);
+
+            Scriptable channelListPrototype = cx.newObject(bot.getUmbrella().getStandardScope());
+            ScriptableObject.defineProperty(channelListFakeConstructor, "prototype", channelListPrototype, 0);
+
+            channelList.setPrototype(channelListPrototype);
+            
         } catch (NoSuchMethodException ex) {
             Logger.getLogger(JSBot.class.getName()).log(Level.SEVERE, null, ex);
         } catch (SecurityException ex) {

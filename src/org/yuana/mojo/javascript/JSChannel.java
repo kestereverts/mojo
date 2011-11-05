@@ -133,7 +133,7 @@ public class JSChannel extends ScriptableObject {
 
 
 
-    public void jsFunction_addEventListener(String eventName, Scriptable listener) {
+    public void jsFunction_addEventListener(String eventName, Scriptable listener, String fileName) {
         if (listener instanceof Function) {
             synchronized (listeners) {
                 try {
@@ -149,10 +149,15 @@ public class JSChannel extends ScriptableObject {
                     listenerList.add((Function) listener);
                     String path = bot.getConfigFolder() + "/events/" + channel.getChannelName().substring(1).replace("\\.\\.|\\|/", "") + "/" + eventName.replace("\\.\\.|\\|/", "");
                     File file;
-                    do {
-                        file = new File(path + "/" + Double.toString(Math.random()).replace(".", "").substring(1) + ".js");
-                    } while (file.exists());
+                    if(fileName == null) {
+                        do {
+                            file = new File(path + "/" + Double.toString(Math.random()).replace(".", "").substring(1) + ".js");
+                        } while (file.exists());
+                    } else {
+                        file = new File(path + "/" + fileName.replace("\\.\\.|\\|/", "") + ".js");
+                    }
                     ScriptableObject.defineProperty(listener, "fileName", file.getPath(), ScriptableObject.DONTENUM | ScriptableObject.READONLY);
+                    ScriptableObject.defineProperty(listener, "name", fileName, ScriptableObject.DONTENUM | ScriptableObject.READONLY);
                     new File(path).mkdirs();
                     file.createNewFile();
                     //FileWriter writer = new FileWriter(file);
@@ -204,7 +209,8 @@ public class JSChannel extends ScriptableObject {
             boolean result;
             if (listener instanceof Function) {
                 result = listenerList.remove(listener);
-            } else {
+            }
+            else {
                 int index = (int) Context.toNumber(listener);
                 if (index >= 0 && index < listenerList.size()) {
                     listener = listenerList.remove(index);

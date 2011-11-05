@@ -5,6 +5,8 @@
 package org.yuana.mojo.javascript;
 
 import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.MalformedURLException;
@@ -18,7 +20,6 @@ import org.mozilla.javascript.Function;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.ScriptableObject;
 import org.mozilla.javascript.Undefined;
-import org.yuana.mojo.CommandContext;
 import org.yuana.mojo.HTTPClient;
 import org.yuana.mojo.MojoBot;
 import org.yuana.mojo.Umbrella;
@@ -173,6 +174,25 @@ public class JSUmbrella extends ScriptableObject {
             }
         } else {
             System.out.println("Listener is not a function");
+        }
+    }
+    
+    public void jsFunction_load(String fileName) {
+        fileName = umbrella.getConfigFolder() + "/" + fileName.replace("\\.\\.", "");
+        
+        FileReader fileReader;
+        try {
+            Context cx = Context.enter();
+            cx.setOptimizationLevel(-1);
+            fileReader = new FileReader(fileName);
+            cx.evaluateReader(umbrella.getStandardScope(), fileReader, fileName, 1, null);
+            fileReader.close();
+        } catch (FileNotFoundException ex) {
+            Logger.getLogger(MojoBot.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException ex) {
+            Logger.getLogger(MojoBot.class.getName()).log(Level.SEVERE, null, ex);
+        } finally {
+            Context.exit();
         }
     }
 }

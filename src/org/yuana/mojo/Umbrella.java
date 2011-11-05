@@ -100,7 +100,7 @@ public final class Umbrella {
             ScriptableObject.defineProperty(standardScope, botList.getClassName(), botListFakeConstructor, 0);
 
             Scriptable botListPrototype = cx.newObject(standardScope);
-            ScriptableObject.defineProperty(standardScope, "prototype", botListPrototype, 0);
+            ScriptableObject.defineProperty(botListFakeConstructor, "prototype", botListPrototype, 0);
 
             botList.setPrototype(botListPrototype);
 

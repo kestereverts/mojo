@@ -7,6 +7,7 @@ package org.yuana.mojo.javascript;
 import java.util.Collection;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.ScriptableObject;
+import org.yuana.mojo.CommandContext;
 import org.yuana.mojo.MojoBot;
 import org.yuana.mojo.Umbrella;
 
